@@ -12,4 +12,4 @@ select
 
 from {{ ref('int_customer_order_history') }}
 
-where extract(year from order_date) = 2026
+where extract(year from order_date) = {{ var('target_year') }}

@@ -11,24 +11,23 @@
 }}
 
 with orders as (
-
     select
         order_date,
         customer_id,
         order_id,
         net_sales
     from {{ ref('stg_orders') }}
-    where extract(year from order_date) in (2025, 2026)
-
+    where extract(year from order_date) in (
+        {{ var('previous_year') }},
+        {{ var('target_year') }}
+    )
 ),
 
 order_products as (
-
     select
         order_id,
         qty_product
     from {{ ref('int_order_product_metrics') }}
-
 )
 
 select

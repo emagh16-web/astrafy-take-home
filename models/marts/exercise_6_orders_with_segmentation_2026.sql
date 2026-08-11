@@ -18,7 +18,7 @@ with orders as (
         order_id,
         net_sales
     from {{ ref('stg_orders') }}
-    where extract(year from order_date) = 2026
+    where extract(year from order_date) = {{ var('target_year') }}
 
 ),
 
