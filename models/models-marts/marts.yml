@@ -1,0 +1,44 @@
+version: 2
+
+models:
+  - name: exercise_4_orders_with_qty_2025_2026
+    description: One row per order for 2025 and 2026 with total product quantity.
+    columns:
+      - name: order_id
+        data_tests:
+          - not_null
+          - unique
+
+      - name: qty_product
+        data_tests:
+          - not_null
+
+  - name: exercise_5_order_segmentation_2026
+    description: One row per 2026 order with customer order segment.
+    columns:
+      - name: order_id
+        data_tests:
+          - not_null
+          - unique
+
+      - name: order_segmentation
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['New', 'Returning', 'VIP']
+
+  - name: exercise_6_orders_with_segmentation_2026
+    description: One row per order in 2026 with order segmentation.
+    columns:
+      - name: order_id
+        data_tests:
+          - not_null
+          - unique
+
+      - name: order_segmentation
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['New', 'Returning', 'VIP']
