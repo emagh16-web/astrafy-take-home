@@ -1,0 +1,86 @@
+version: 2
+
+models:
+  - name: exercise_1_orders_2026
+    description: Total number of orders placed in the year 2026.
+    columns:
+      - name: number_of_orders_2026
+        description: Total count of orders placed in 2026.
+        data_tests:
+          - not_null
+
+  - name: exercise_2_orders_per_month_2026
+    description: Number of orders per month for the year 2026.
+    columns:
+      - name: order_month
+        description: Month of the order, represented by the first day of the month.
+        data_tests:
+          - not_null
+          - unique
+
+      - name: number_of_orders
+        description: Number of orders placed during the month.
+        data_tests:
+          - not_null
+
+  - name: exercise_3_avg_products_per_order_2026
+    description: Average number of products per order for each month of 2026.
+    columns:
+      - name: order_month
+        description: Month of the order, represented by the first day of the month.
+        data_tests:
+          - not_null
+          - unique
+
+      - name: avg_products_per_order
+        description: Average quantity of products per order during the month.
+        data_tests:
+          - not_null
+
+  - name: exercise_4_orders_with_qty_2025_2026
+    description: One row per order for 2025 and 2026 with total product quantity.
+    columns:
+      - name: order_id
+        description: Unique identifier of the order.
+        data_tests:
+          - not_null
+          - unique
+
+      - name: qty_product
+        description: Total quantity of products in the order.
+        data_tests:
+          - not_null
+
+  - name: exercise_5_order_segmentation_2026
+    description: One row per 2026 order with the calculated customer order segment.
+    columns:
+      - name: order_id
+        description: Unique identifier of the order.
+        data_tests:
+          - not_null
+          - unique
+
+      - name: order_segmentation
+        description: Order segment based on the customer's order activity during the previous 12 months.
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['New', 'Returning', 'VIP']
+
+  - name: exercise_6_orders_with_segmentation_2026
+    description: One row per order in 2026 with the order segmentation added.
+    columns:
+      - name: order_id
+        description: Unique identifier of the order.
+        data_tests:
+          - not_null
+          - unique
+
+      - name: order_segmentation
+        description: Order segment assigned as New, Returning, or VIP.
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['New', 'Returning', 'VIP']

@@ -1,0 +1,14 @@
+version: 2
+
+sources:
+  - name: raw
+    description: Raw e-commerce source data uploaded from the recruitment Excel files.
+    database: astrafy-take-home
+    schema: raw
+
+    tables:
+      - name: orders
+        description: One row per order, containing the order date, customer, order identifier, and total net sales.
+
+      - name: sales
+        description: One row per order and product, containing product-level sales and quantity information.
