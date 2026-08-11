@@ -1,22 +1,24 @@
 # Astrafy Take-Home Challenge
 
-Analytics Engineering take-home challenge built with **dbt** and **Google BigQuery**.
+Analytics Engineering take-home challenge built with **dbt**, **Google BigQuery**, **LookML**, and **Data Studio**.
 
 The project transforms raw e-commerce order and sales data into tested, documented, analytics-ready models following a layered dbt architecture:
 
 **Raw → Staging → Intermediate → Marts**
 
-The final models answer the six analytical exercises included in the challenge and provide reusable datasets for reporting and dashboarding.
+The final models answer the six analytical exercises included in the challenge and provide reusable datasets for reporting, semantic modeling, dashboarding, and forecasting.
 
 ---
 
 ## Tech Stack
 
 - Google BigQuery
+- BigQuery ML
 - dbt Cloud
 - SQL
 - Git / GitHub
-- Looker Studio / Data Studio
+- LookML
+- Data Studio
 
 ---
 
@@ -43,10 +45,11 @@ models/
     ├── exercise_4_orders_with_qty_2025_2026.sql
     ├── exercise_5_order_segmentation_2026.sql
     └── exercise_6_orders_with_segmentation_2026.sql
-    Architecture
+Architecture
 Raw
 The original source files are loaded into the BigQuery raw dataset.
 Main source tables:
+
 raw.orders — one row per order
 raw.sales — one row per order/product line
 Staging
@@ -68,39 +71,55 @@ The intermediate layer contains reusable business logic used by multiple final m
 int_order_product_metrics
 Aggregates product quantities to order level.
 Output grain:
+
 One row per order
+
 Main metric:
+
 qty_product = total quantity of products in each order.
+
 int_customer_order_history
 Calculates the number of previous orders made by each customer during the configured lookback period before every order.
 The default lookback period is:
+
 segmentation_lookback_months: 12
 This model supports the customer segmentation logic used in Exercises 5 and 6.
 Marts / Exercises
 Exercise 1 — Orders in 2026
 Calculates the total number of orders placed during 2026.
-Result:
-2,573 orders
+Result: 2,573 orders
+
 Model:
+
 exercise_1_orders_2026
+
 Exercise 2 — Orders per Month
 Calculates the number of orders for each month of 2026.
 Output grain:
+
 One row per month
+
 Model:
+
 exercise_2_orders_per_month_2026
+
 Exercise 3 — Average Products per Order
 Calculates the average number of products contained in an order for each month of 2026.
 The model combines:
+
 order dates from stg_orders
 product quantities from int_order_product_metrics
 Model:
 exercise_3_avg_products_per_order_2026
+
 Exercise 4 — Orders with Product Quantity
 Creates an order-level table containing all orders from 2025 and 2026 together with total product quantity.
 Output grain:
+
 One row per order
-Main columns include:
+
+Main columns:
+
 order_date
 customer_id
 order_id
@@ -108,21 +127,26 @@ net_sales
 qty_product
 Model:
 exercise_4_orders_with_qty_2025_2026
+
 This model is materialized as a BigQuery table.
+
 Exercise 5 — Customer Order Segmentation
 Each order placed in 2026 is classified according to the customer's previous-order activity during the preceding 12 months.
-Segmentation rules:
 Previous orders in prior 12 months	Segment
 0	New
 1–3	Returning
 4+	VIP
 Model:
 exercise_5_order_segmentation_2026
+
 Exercise 6 — Orders with Segmentation
 Creates the final 2026 order-level dataset enriched with the customer segmentation calculated in Exercise 5.
 Output grain:
+
 One row per order
+
 Main columns:
+
 order_date
 customer_id
 order_id
@@ -130,6 +154,7 @@ net_sales
 order_segmentation
 Model:
 exercise_6_orders_with_segmentation_2026
+
 Variables and Reduced Hardcoding
 Common business parameters are defined centrally in dbt_project.yml instead of being repeated throughout SQL models.
 vars:
@@ -157,6 +182,7 @@ Partitioning reduces the amount of data scanned for date-based queries, while cl
 Data Quality Tests
 dbt generic tests are used across staging, intermediate, and marts models.
 Tests include:
+
 not_null
 unique
 accepted_values
@@ -179,6 +205,7 @@ This validates the complete dependency chain from staging through intermediate m
 Model Lineage
 The project uses dbt source() and ref() functions to explicitly define dependencies between models.
 Example flow:
+
 raw.orders
      ↓
 stg_orders
@@ -198,14 +225,17 @@ int_order_product_metrics
 exercise_3 / exercise_4
 Using ref() allows dbt to automatically determine model execution order and generate lineage.
 Assumptions
-Date granularity
+Date Granularity
 The source data contains order dates but no order timestamp.
 Because the exact order sequence within the same day is unavailable, two orders placed by the same customer on the same date cannot reliably be ordered chronologically.
+
 For segmentation purposes, only orders with:
+
 previous_order.order_date < current_order.order_date
 are considered previous orders.
 Therefore, another order from the same customer occurring on the same calendar date is not counted as a previous order.
-Dataset period
+
+Dataset Period
 The supplied source data used for the implementation contains records for the periods required by the analytical exercises, including 2025 and 2026.
 Running the Project
 To build the complete project and execute all configured tests:
@@ -218,20 +248,9 @@ Example of running a specific model:
 dbt run --select exercise_6_orders_with_segmentation_2026
 Example of testing the marts layer:
 dbt test --select path:models/marts
-
-## Repository
-
-This repository contains the complete dbt implementation for the Astrafy Analytics / Insights Engineering take-home challenge.
-
-## LookML Semantic Layer
-
+LookML Semantic Layer
 The project includes a modular LookML semantic layer designed to be deployment-ready for Looker.
-
-### Structure
-
-The LookML project is organized into a model file and reusable view files:
-
-```text
+Structure
 lookml/
 ├── ecommerce.model.lkml
 └── views/
@@ -241,11 +260,15 @@ The ecommerce.model.lkml file defines the main Explore and the relationship betw
 Explore and Joins
 The primary Explore is:
 E-commerce Orders
+
 The orders view is the main Explore source and is joined to order_product_metrics using order_id.
+
 The join is defined as a left outer one-to-one relationship so that all orders are preserved while product-level metrics can be analyzed in the same Explore.
+
 Customer Segmentation
 Customer segmentation from Part 1 is exposed directly in the semantic layer through the Customer Segment dimension.
-Available segments are:
+Available segments:
+
 New
 Returning
 VIP
@@ -262,6 +285,7 @@ These fields are designed to support marketing and sales analysis without requir
 Conversational Analytics / GenAI Readiness
 The LookML layer includes metadata intended to improve Natural Language and Conversational Analytics experiences.
 This includes:
+
 clear business-friendly field labels
 detailed field descriptions
 synonyms such as sales, turnover, AOV, buyers, and basket size
@@ -274,8 +298,37 @@ The model currently uses:
 connection: "bigquery"
 as a placeholder connection name.
 When deployed to a real Looker instance, this value should be replaced with the actual Looker database connection name configured for the BigQuery environment.
+
 The underlying views reference the analytics-ready BigQuery tables created in Part 1.
+
+Bonus: Revenue Forecast
+A 7-day sales revenue forecast was implemented using BigQuery ML with an ARIMA_PLUS time-series model.
+The model is trained on historical daily revenue and produces:
+
+forecast revenue
+lower prediction interval
+upper prediction interval
+The forecast output is stored in:
+revenue_forecast_7d
+
+The forecast is visualized on the Revenue Forecast page of the Data Studio dashboard.
+
 Dashboard
-Looker Studio dashboard:
-[Add Looker Studio link here]
-The dashboard is shared with the required Astrafy reviewers.
+Data Studio dashboard:
+View the E-commerce Marketing Dashboard (https://datastudio.google.com/reporting/a594d255-b6a2-415f-a791-b5fd4204bbe8)
+
+The dashboard includes:
+
+Executive Overview
+Customer & Product Analysis
+7-Day Revenue Forecast
+The dashboard has been shared with:
+founders@astrafy.io
+bi@astrafy.io
+Repository
+This repository contains the complete dbt and LookML implementation for the Astrafy Analytics / Insights Engineering take-home challenge.
+
+
+
+
+
