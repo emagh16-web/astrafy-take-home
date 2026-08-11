@@ -1,4 +1,14 @@
-{{ config(materialized='table') }}
+{{
+    config(
+        materialized='table',
+        partition_by={
+            "field": "order_date",
+            "data_type": "date",
+            "granularity": "month"
+        },
+        cluster_by=["customer_id"]
+    )
+}}
 
 with orders as (
 
