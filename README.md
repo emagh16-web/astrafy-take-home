@@ -218,10 +218,64 @@ Example of running a specific model:
 dbt run --select exercise_6_orders_with_segmentation_2026
 Example of testing the marts layer:
 dbt test --select path:models/marts
+
+## Repository
+
+This repository contains the complete dbt implementation for the Astrafy Analytics / Insights Engineering take-home challenge.
+
+## LookML Semantic Layer
+
+The project includes a modular LookML semantic layer designed to be deployment-ready for Looker.
+
+### Structure
+
+The LookML project is organized into a model file and reusable view files:
+
+```text
+lookml/
+├── ecommerce.model.lkml
+└── views/
+    ├── orders.view.lkml
+    └── order_product_metrics.view.lkml
+The ecommerce.model.lkml file defines the main Explore and the relationship between the business-facing views.
+Explore and Joins
+The primary Explore is:
+E-commerce Orders
+The orders view is the main Explore source and is joined to order_product_metrics using order_id.
+The join is defined as a left outer one-to-one relationship so that all orders are preserved while product-level metrics can be analyzed in the same Explore.
+Customer Segmentation
+Customer segmentation from Part 1 is exposed directly in the semantic layer through the Customer Segment dimension.
+Available segments are:
+New
+Returning
+VIP
+This allows business users to filter, pivot, compare, and visualize KPIs by customer segment.
+Business KPIs
+The semantic layer exposes business-oriented measures including:
+Revenue
+Orders
+Customers
+Average Order Value
+Products Sold
+Average Products per Order
+These fields are designed to support marketing and sales analysis without requiring users to understand the underlying SQL or database structure.
+Conversational Analytics / GenAI Readiness
+The LookML layer includes metadata intended to improve Natural Language and Conversational Analytics experiences.
+This includes:
+clear business-friendly field labels
+detailed field descriptions
+synonyms such as sales, turnover, AOV, buyers, and basket size
+grouped fields using group_label
+hidden technical join keys
+explicit segmentation definitions
+These design choices help reduce ambiguity and provide semantic context for AI-assisted querying.
+Deployment Note
+The model currently uses:
+connection: "bigquery"
+as a placeholder connection name.
+When deployed to a real Looker instance, this value should be replaced with the actual Looker database connection name configured for the BigQuery environment.
+The underlying views reference the analytics-ready BigQuery tables created in Part 1.
 Dashboard
 Looker Studio dashboard:
 [Add Looker Studio link here]
 The dashboard is shared with the required Astrafy reviewers.
-## Repository
-
-This repository contains the complete dbt implementation for the Astrafy Analytics / Insights Engineering take-home challenge.
